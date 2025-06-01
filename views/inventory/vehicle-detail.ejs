@@ -1,0 +1,61 @@
+
+<div class="vehicle-detail-page">
+    <h1>
+        <%= vehicleData.inv_year %>
+            <%= vehicleData.inv_make %>
+                <%= vehicleData.inv_model %>
+    </h1>
+
+    <div class="detail-columns">
+        <div class="vehicle-image-column">
+            <img src="<%= vehicleData.inv_image %>"
+                alt="Image of <%= vehicleData.inv_make %> <%= vehicleData.inv_model %>">
+            
+        </div>
+
+        <div class="vehicle-info-column">
+            <div class="price-box">
+                
+                    <h2>No-Haggle Price: $<%= new Intl.NumberFormat('en-US', { minimumFractionDigits: 0,
+                            maximumFractionDigits: 0 }).format(vehicleData.inv_price) %>
+                    </h2>
+                    
+            </div>
+
+            <div class="vehicle-specs">
+                <p><strong>Mileage:</strong>
+                    <%= new Intl.NumberFormat('en-US').format(vehicleData.inv_miles) %>
+                </p>
+                <p><strong>MPG:</strong> [Necesitarías este dato si lo tienes]</p>
+                <p><strong>Ext. Color:</strong>
+                    <%= vehicleData.inv_color %>
+                </p>
+                <p><strong>Int. Color:</strong> [Gusfabla]</p>
+                <p><strong>Fuel Type:</strong> [Gusfabla]</p>
+                <p><strong>Drivetrain:</strong> [Gusfabla]</p>
+                <p><strong>Transmission:</strong> [Gusfabla]</p>
+                <p><strong>Stock #:</strong> [Gusfabla]</p>
+                <p><strong>VIN:</strong> [Gusfabla]</p>
+            </div>
+
+            <div class="vehicle-actions">
+                <button class="action-button primary-action">START MY PURCHASE</button>
+                <button class="action-button secondary-action">CONTACT US</button>
+                <button class="action-button secondary-action">SCHEDULE TEST DRIVE</button>
+                <button class="action-button secondary-action">APPLY FOR FINANCING</button>
+            </div>
+
+            <div class="contact-info">
+                <p><strong>Call Us:</strong> [Tu número de teléfono]</p>
+                <p><strong>Visit Us:</strong> [Tu dirección]</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="vehicle-description-section">
+        <h3>Vehicle Description</h3>
+        <p>
+            <%= vehicleData.inv_description %>
+        </p>
+    </div>
+</div>

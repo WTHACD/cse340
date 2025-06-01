@@ -4,7 +4,7 @@ const utilities = require("../utilities/")
 const invCont = {}
 
 /* ***************************
- *  Build inventory by classification view
+ * Build inventory by classification view
  * ************************** */
 invCont.buildByClassificationId = async function (req, res, next) {
   const classification_id = req.params.classificationId
@@ -18,4 +18,29 @@ invCont.buildByClassificationId = async function (req, res, next) {
     grid,
   })
 }
-module.exports = invCont
+
+/* ***************************
+ * Build vehicle detail view
+ * ************************** */
+invCont.buildDetailView = async function (req, res, next) {
+  const invId = parseInt(req.params.invId);
+  console.log("Controller: Attempting to get vehicle data for invId:", invId); // LOG ADDED
+  const vehicleData = await invModel.getVehicleById(invId);
+  console.log("Controller: Vehicle data received:", vehicleData); // LOG ADDED
+
+  if (vehicleData) {
+      const vehicleDetailHtml = utilities.buildVehicleDetailHtml(vehicleData);
+      let nav = await utilities.getNav();
+      res.render('inventory/vehicle-detail', {
+          title: `${vehicleData.inv_make} ${vehicleData.inv_model} Details`,
+          nav,
+          vehicleDetailHtml: vehicleDetailHtml,
+          vehicleData: vehicleData
+      });
+  } else {
+      console.log("Controller: Vehicle data not found for invId:", invId); // LOG ADDED
+      next({status: 404, message: 'Sorry, we could not find that vehicle.'});
+  }
+}
+
+module.exports = invCont;
