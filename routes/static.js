@@ -1,10 +1,8 @@
+const express = require("express");
+const router = new express.Router();
+const baseController = require("../controllers/baseController");
 
-const baseController = require("../controllers/baseController"); //
+// Route to build home view
+router.get("/", baseController.buildHome);
 
-
-module.exports = function(app) {
-  
-  app.get("/", baseController.buildHome); //
-
- 
-};
+module.exports = router;
