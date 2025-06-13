@@ -12,8 +12,6 @@ validate.classificationRules = () => {
       .trim()
       .isLength({ min: 1 })
       .withMessage("Please provide a classification name.")
-      .isAlpha()
-      .withMessage("Classification name must contain only alphabetic characters.")
       .custom(async (classification_name) => {
         const classificationExists = await invModel.checkExistingClassification(classification_name)
         if (classificationExists){

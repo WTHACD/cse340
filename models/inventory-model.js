@@ -64,10 +64,24 @@ async function addInventory(inv_make, inv_model, inv_year, inv_description, inv_
   }
 }
 
+/* ***************************
+ * Check for existing classification
+ * ************************** */
+async function checkExistingClassification(classification_name){
+  try {
+    const sql = "SELECT * FROM classification WHERE classification_name = $1"
+    const classification = await pool.query(sql, [classification_name])
+    return classification.rowCount
+  } catch (error) {
+    return error.message
+  }
+}
+
 module.exports = {
   getClassifications,
   getInventoryByClassificationId,
   getVehicleById,
   addClassification,
-  addInventory
+  addInventory,
+  checkExistingClassification 
 };

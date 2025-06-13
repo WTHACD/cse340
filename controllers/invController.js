@@ -87,7 +87,7 @@ invCont.addClassification = async function (req, res, next) {
   const { classification_name } = req.body
   const addResult = await invModel.addClassification(classification_name)
   let nav = await utilities.getNav()
-  if (addResult) {
+  if (addResult.rowCount) { 
     req.flash("notice", `The ${classification_name} classification was successfully added.`)
     res.status(201).render("./inventory/management", {
       title: "Vehicle Management",
@@ -95,6 +95,7 @@ invCont.addClassification = async function (req, res, next) {
       errors: null,
     })
   } else {
+    //...
     req.flash("notice", "Sorry, adding the classification failed.")
     res.status(501).render("./inventory/add-classification", {
       title: "Add New Classification",
