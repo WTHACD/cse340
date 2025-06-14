@@ -1,8 +1,7 @@
-const express = require("express");
-const router = new express.Router();
-const baseController = require("../controllers/baseController");
+const express = require('express')
+const router = express.Router()
 
-// Route to build home view
-router.get("/", baseController.buildHome);
+// Static Routes
+router.use(express.static("public"))
 
-module.exports = router;
+module.exports = router

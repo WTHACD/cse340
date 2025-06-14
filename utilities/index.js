@@ -1,4 +1,6 @@
 const invModel = require("../models/inventory-model")
+const jwt = require("jsonwebtoken")
+require("dotenv").config()
 const Util = {}
 
 /* ************************
@@ -31,27 +33,27 @@ Util.buildClassificationGrid = async function(data){
     let grid
     if(data.length > 0){
       grid = '<ul id="inv-display">'
-      data.forEach(vehicle => { 
+      data.forEach(vehicle => {
         grid += '<li>'
-        grid +=  '<a href="/inv/detail/'+ vehicle.inv_id 
-        + '" title="View ' + vehicle.inv_make + ' '+ vehicle.inv_model 
-        + 'details"><img src="' + vehicle.inv_thumbnail 
-        +'" alt="Image of '+ vehicle.inv_make + ' ' + vehicle.inv_model 
+        grid +=  '<a href="/inv/detail/'+ vehicle.inv_id
+        + '" title="View ' + vehicle.inv_make + ' '+ vehicle.inv_model
+        + 'details"><img src="' + vehicle.inv_thumbnail
+        +'" alt="Image of '+ vehicle.inv_make + ' ' + vehicle.inv_model
         +' on CSE Motors" /></a>'
         grid += '<div class="namePrice">'
         grid += '<hr />'
         grid += '<h2>'
-        grid += '<a href="/inv/detail/' + vehicle.inv_id +'" title="View ' 
-        + vehicle.inv_make + ' ' + vehicle.inv_model + ' details">' 
+        grid += '<a href="/inv/detail/' + vehicle.inv_id +'" title="View '
+        + vehicle.inv_make + ' ' + vehicle.inv_model + ' details">'
         + vehicle.inv_make + ' ' + vehicle.inv_model + '</a>'
         grid += '</h2>'
-        grid += '<span>$' 
+        grid += '<span>$'
         + new Intl.NumberFormat('en-US').format(vehicle.inv_price) + '</span>'
         grid += '</div>'
         grid += '</li>'
       })
       grid += '</ul>'
-    } else { 
+    } else {
       grid = '<p class="notice">Sorry, no matching vehicles could be found.</p>'
     }
     return grid
@@ -86,7 +88,7 @@ Util.buildVehicleDetailHtml = function(vehicleData) {
   let detailHtml = '<div class="vehicle-detail-container">';
   detailHtml += `<img src="${vehicleData.inv_image}" alt="Image of ${vehicleData.inv_make} ${vehicleData.inv_model}">`;
   detailHtml += '<div class="vehicle-detail-info">';
-  detailHtml += `<h2>${vehicleData.inv_make} ${vehicleData.inv_model}</h2>`;
+  detailHtml += `<h2>${vehicleData.inv_make} ${vehicleData.inv_model} Details</h2>`;
   detailHtml += `<p><strong>Price:</strong> $${new Intl.NumberFormat('en-US').format(vehicleData.inv_price)}</p>`;
   detailHtml += `<p><strong>Description:</strong> ${vehicleData.inv_description}</p>`;
   detailHtml += `<p><strong>Color:</strong> ${vehicleData.inv_color}</p>`;
@@ -94,6 +96,60 @@ Util.buildVehicleDetailHtml = function(vehicleData) {
   detailHtml += '</div></div>';
   return detailHtml;
 };
+
+/* ****************************************
+* Middleware to check token validity
+**************************************** */
+Util.checkJWTToken = (req, res, next) => {
+ if (req.cookies.jwt) {
+  jwt.verify(
+   req.cookies.jwt,
+   process.env.ACCESS_TOKEN_SECRET,
+   function (err, accountData) {
+    if (err) {
+     req.flash("notice", "Please log in")
+     res.clearCookie("jwt")
+     return res.redirect("/account/login")
+    }
+    res.locals.accountData = accountData
+    res.locals.loggedin = 1
+    next()
+   })
+ } else {
+  next()
+ }
+}
+
+/* ****************************************
+ * Check Login
+ * ************************************ */
+ Util.checkLogin = (req, res, next) => {
+  if (res.locals.loggedin) {
+    next()
+  } else {
+    req.flash("notice", "Please log in.")
+    return res.redirect("/account/login")
+  }
+ }
+
+/* ****************************************
+ * Check for Employee or Admin Authorization
+ * ************************************ */
+Util.checkManagementAccess = (req, res, next) => {
+    if (res.locals.loggedin) {
+        const account_type = res.locals.accountData.account_type
+        if (account_type === 'Employee' || account_type === 'Admin') {
+            next()
+        } else {
+            req.flash("notice", "You are not authorized to access this page.")
+            return res.redirect("/account/login")
+        }
+    } else {
+        req.flash("notice", "Please log in.")
+        return res.redirect("/account/login")
+    }
+}
+
 
 /* ****************************************
  * Middleware For Handling Errors

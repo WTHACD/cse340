@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-    <%- include('../partials/head') -%>
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSE 340</title>   
+    <link rel="stylesheet" href="/css/styles.css" media="screen">
+</head>
 
-    <body>
-        <div id="wrapper">
-            <%- include('../partials/header') -%>
-            <%- include('../partials/navigation') -%>
-                    <main>
-                        <%- body -%>
-                    </main>
-                    <%- include('../partials/footer') -%>
-        </div>
-    </body>
+<body>
+    <div id="wrapper">
+        <header>
+            <%- include('../partials/header') %>
+        </header>
+        <nav>
+            <%- nav %>
+        </nav>
+        <main>
+            <%- body %>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>
+        </footer>
+    </div>
+</body>
 
 </html>

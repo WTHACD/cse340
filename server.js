@@ -1,29 +1,27 @@
-const express = require('express');
-const app = express();
-const expressLayouts = require("express-ejs-layouts");
-const path = require('path');
-const env = require("dotenv").config();
-const utilities = require("./utilities/");
-const baseController = require("./controllers/baseController");
-const session = require("express-session");
-const pool = require('./database/');
-const bodyParser = require("body-parser") // 1. REQUIRE body-parser
-
-const inventoryRoute = require("./routes/inventoryRoute");
-const accountRoute = require("./routes/accountRoute");
-
+/* ******************************************
+ * This server.js file is the primary file of the
+ * application. It is used to control the project.
+ *******************************************/
 /* ***********************
- * View Engine and Templates
+ * Require Statements
  *************************/
-app.set("view engine", "ejs");
-app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
-app.set("layout", "layouts/layout");
-
+const express = require("express")
+const expressLayouts = require("express-ejs-layouts")
+const env = require("dotenv").config()
+const app = express()
+const static = require("./routes/static")
+const baseController = require("./controllers/baseController")
+const inventoryRoute = require("./routes/inventoryRoute")
+const accountRoute = require("./routes/accountRoute")
+const utilities = require("./utilities/")
+const session = require("express-session")
+const pool = require('./database/')
+const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
 
 /* ***********************
  * Middleware
- * ************************/
+ ************************/
 app.use(session({
   store: new (require('connect-pg-simple')(session))({
     createTableIfMissing: true,
@@ -35,7 +33,6 @@ app.use(session({
   name: 'sessionId',
 }))
 
-
 // Express Messages Middleware
 app.use(require('connect-flash')())
 app.use(function(req, res, next){
@@ -43,80 +40,63 @@ app.use(function(req, res, next){
   next()
 })
 
-// 2. USE body-parser
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(cookieParser())
+app.use(utilities.checkJWTToken)
 
 /* ***********************
  * Static Files
  *************************/
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(static)
+
+/* ***********************
+ * View Engine and Templates
+ *************************/
+app.set("view engine", "ejs")
+app.use(expressLayouts)
+app.set("layout", "./layouts/layout") // not at views root
 
 /* ***********************
  * Routes
  *************************/
-app.use(require("./routes/static"));
-app.use("/inv", inventoryRoute);
-app.use("/account", accountRoute);
-
-// ... RESTO DEL ARCHIVO ...
-
-
-
+// Index route
+app.get("/", utilities.handleErrors(baseController.buildHome))
 // Inventory routes
-app.use("/inv", inventoryRoute);
-
-// Account routes - 2. USE the new route
-app.use("/account", accountRoute);
-
-
-/* ***********************
- * Server Listener
- *************************/
-const port = process.env.PORT || 5500;
-app.listen(port, () => { //
-  console.log(`App listening on port ${port}`);
-});
+app.use("/inv", inventoryRoute)
+// Account routes
+app.use("/account", accountRoute)
 
 // File Not Found Route - must be last route in list
-app.get("/intentional-error", utilities.handleErrors(async (req, res, next) => {
-throw new Error("Intentional Server Error (500 Type)");
-}));
-
 app.use(async (req, res, next) => {
-
-  if (req.originalUrl.match(/\.(css|js|jpg|png|gif|ico)$/i)) {
-    return res.status(404).send('Static file not found.'); // 404 simple
-  }
-  next({status: 404, message: `Sorry, we appear to have lost that page: ${req.path}`}); //
-});
+  next({status: 404, message: 'Sorry, we appear to have lost that page.'})
+})
 
 /* ***********************
 * Express Error Handler
+* Place after all other middleware
 *************************/
 app.use(async (err, req, res, next) => {
-  let nav = "<nav><ul><li><a href='/'>Home</a></li></ul></nav>";
-  try {
-
-    if (!req.originalUrl.match(/\.(css|js|jpg|png|gif|ico)$/i) || err.status !== 404) {
-      nav = await utilities.getNav();
-    }
-  } catch (navError) {
-    console.error("Error getting nav in error handler:", navError);
-  }
-
-  console.error(`Error at: "${req.originalUrl}": ${err.message}`);
-
-  let message;
-  if (err.status == 404) {
-    message = err.message;
-  } else {
-    message = 'Oh no! There was a crash. Maybe try a different route?';
-  }
-
+  let nav = await utilities.getNav()
+  console.error(`Error at: "${req.originalUrl}": ${err.message}`)
+  let message = err.status == 404 ? err.message : 'Oh no! There was a crash. Maybe try a different route?'
   res.render("errors/error", {
     title: err.status || 'Server Error',
     message,
     nav
-  });
-});
+  })
+})
+
+/* ***********************
+ * Local Server Information
+ * Values from .env (environment) file
+ *************************/
+const port = process.env.PORT
+const host = process.env.HOST
+
+/* ***********************
+ * Log statement to confirm server operation
+ *************************/
+app.listen(port, () => {
+  console.log(`app listening on ${host}:${port}`)
+})
