@@ -43,13 +43,12 @@ invCont.buildDetailView = async function (req, res, next) {
   const vehicleData = await invModel.getVehicleById(invId);
 
   if (vehicleData) {
-      const vehicleDetailHtml = utilities.buildVehicleDetailHtml(vehicleData);
       let nav = await utilities.getNav();
       res.render('./inventory/vehicle-detail', {
-          title: `${vehicleData.inv_make} ${vehicleData.inv_model} Details`,
+          title: vehicleData.inv_make + ' ' + vehicleData.inv_model,
           nav,
-          vehicleDetailHtml,
           errors: null,
+          vehicleData // Pasando el objeto de datos completo a la vista
       });
   } else {
       next({status: 404, message: 'Sorry, we could not find that vehicle.'});
