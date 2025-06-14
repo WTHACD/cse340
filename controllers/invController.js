@@ -48,7 +48,7 @@ invCont.buildDetailView = async function (req, res, next) {
           title: vehicleData.inv_make + ' ' + vehicleData.inv_model,
           nav,
           errors: null,
-          vehicleData // Pasando el objeto de datos completo a la vista
+          vehicleData 
       });
   } else {
       next({status: 404, message: 'Sorry, we could not find that vehicle.'});
