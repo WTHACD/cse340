@@ -1,0 +1,61 @@
+    <h1>
+        <%= title %>
+    </h1>
+
+    <%- messages() %>
+
+        <% if (vehicle1 && vehicle2) { %>
+            <div class="comparison-container">
+                <div class="vehicle-card">
+                    <h2>
+                        <%= vehicle1.inv_make %>
+                            <%= vehicle1.inv_model %>
+                    </h2>
+                    <img src="<%= vehicle1.inv_image %>"
+                        alt="Image of <%= vehicle1.inv_make %> <%= vehicle1.inv_model %>">
+                    <ul>
+                        <li><strong>Year:</strong>
+                            <%= vehicle1.inv_year %>
+                        </li>
+                        <li><strong>Price:</strong> $<%= new Intl.NumberFormat('en-US').format(vehicle1.inv_price) %>
+                        </li>
+                        <li><strong>Miles:</strong>
+                            <%= new Intl.NumberFormat('en-US').format(vehicle1.inv_miles) %>
+                        </li>
+                        <li><strong>Color:</strong>
+                            <%= vehicle1.inv_color %>
+                        </li>
+                        <li><strong>Description:</strong>
+                            <%= vehicle1.inv_description %>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="vehicle-card">
+                    <h2>
+                        <%= vehicle2.inv_make %>
+                            <%= vehicle2.inv_model %>
+                    </h2>
+                    <img src="<%= vehicle2.inv_image %>"
+                        alt="Image of <%= vehicle2.inv_make %> <%= vehicle2.inv_model %>">
+                    <ul>
+                        <li><strong>Year:</strong>
+                            <%= vehicle2.inv_year %>
+                        </li>
+                        <li><strong>Price:</strong> $<%= new Intl.NumberFormat('en-US').format(vehicle2.inv_price) %>
+                        </li>
+                        <li><strong>Miles:</strong>
+                            <%= new Intl.NumberFormat('en-US').format(vehicle2.inv_miles) %>
+                        </li>
+                        <li><strong>Color:</strong>
+                            <%= vehicle2.inv_color %>
+                        </li>
+                        <li><strong>Description:</strong>
+                            <%= vehicle2.inv_description %>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <% } else { %>
+                <p class="notice">Could not load vehicles for comparison.</p>
+                <% } %>

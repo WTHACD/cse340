@@ -1,0 +1,25 @@
+    <h1>
+        <%= title %>
+    </h1>
+    <p>Select two or more vehicles from the list below to compare.</p>
+
+    <%- messages() %>
+
+        <% if (errors && errors.length> 0) { %>
+            <ul class="notice">
+                <% errors.forEach(error=> { %>
+                    <li>
+                        <%= error.msg %>
+                    </li>
+                    <% }) %>
+            </ul>
+            <% } %>
+
+                <% if (grid) { %>
+                    <form id="compareForm" action="/inv/compare" method="post">
+                        <%- grid %>
+                            <button type="submit" class="compare-button">Compare Selected Vehicles</button>
+                    </form>
+                    <% } else { %>
+                        <p class="notice">Sorry, no vehicles are available to compare at this time.</p>
+                        <% } %>

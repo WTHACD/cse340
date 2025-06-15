@@ -10,6 +10,14 @@ router.get("/type/:classificationId", utilities.handleErrors(invController.build
 // Route to build vehicle detail view
 router.get("/detail/:invId", utilities.handleErrors(invController.buildDetailView));
 
+
+// Route to build compare selection view
+router.get("/compare", utilities.handleErrors(invController.buildCompareSelectionView));
+
+// Routes for comparison feature
+router.get("/compare/:action/:inv_id", utilities.handleErrors(invController.manageCompare));
+router.get("/compare-view", utilities.handleErrors(invController.buildCompareView));
+
 // Route to build management view
 router.get(
     "/",

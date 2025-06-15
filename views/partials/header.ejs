@@ -3,12 +3,17 @@
         <a href="/" title="Return to home page">CSE Motors</a>
     </span>
     <div id="tools">
-        <% if (locals.loggedin) { %>
-            <a href="/account/" title="View your account details">Welcome <%= locals.accountData.account_firstname %>
-                    </a>
-            <a href="/account/logout" title="Click to log out">Logout</a>
-            <% } else { %>
-                <a href="/account/login" title="Click to log in">My Account</a>
-                <% } %>
+   
+        <% if (locals.compareList && locals.compareList.length> 0) { %>
+            <a href="/inv/compare-view" title="View comparison">Comparing (<%= locals.compareList.length %>)</a>
+            <% } %>
+
+                <% if (locals.loggedin) { %>
+                    <a href="/account/" title="View your account details">Welcome <%=
+                            locals.accountData.account_firstname %></a>
+                    <a href="/account/logout" title="Click to log out">Logout</a>
+                    <% } else { %>
+                        <a href="/account/login" title="Click to log in">My Account</a>
+                        <% } %>
     </div>
 </div>

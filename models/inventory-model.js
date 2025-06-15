@@ -25,14 +25,20 @@ async function checkExistingClassification(classification_name){
  * ************************** */
 async function getInventoryByClassificationId(classification_id) {
   try {
-    const data = await pool.query(
-      `SELECT * FROM public.inventory AS i
-      JOIN public.classification AS c
-      ON i.classification_id = c.classification_id
-      WHERE i.classification_id = $1`,
-      [classification_id]
-    )
-    return data.rows
+    let sql;
+    let params;
+    if (classification_id) {
+        sql = `SELECT * FROM public.inventory AS i
+               JOIN public.classification AS c ON i.classification_id = c.classification_id
+               WHERE i.classification_id = $1`;
+        params = [classification_id];
+    } else {
+       
+        sql = `SELECT * FROM public.inventory ORDER BY inv_make, inv_model`;
+        params = [];
+    }
+    const data = await pool.query(sql, params);
+    return data.rows;
   } catch (error) {
     console.error("getclassificationsbyid error " + error)
   }
@@ -129,6 +135,20 @@ async function updateInventory(
   }
 }
 
+/* ***************************
+ * Get multiple inventory items by inv_ids
+ * ************************** */
+async function getVehiclesByIds(inv_ids) {
+  try {
+    const sql = `SELECT * FROM public.inventory WHERE inv_id = ANY($1::int[])`
+    const data = await pool.query(sql, [inv_ids]);
+    return data.rows;
+  } catch (error) {
+    console.error("getVehiclesByIds error: " + error);
+    return [];
+  }
+}
+
 module.exports = {
   getClassifications,
   getInventoryByClassificationId,
@@ -137,5 +157,6 @@ module.exports = {
   addInventory,
   checkExistingClassification,
   updateInventory,
-  deleteInventoryItem
+  deleteInventoryItem,
+  getVehiclesByIds
 };
