@@ -3,8 +3,6 @@ const utilities = require("../utilities/")
 
 const invCont = {}
 
-// ... (todas las funciones existentes hasta updateInventory se mantienen igual) ...
-
 /* ***************************
  * Build inventory by classification view
  * ************************** */
@@ -284,7 +282,7 @@ invCont.deleteInventory = async function (req, res, next) {
 /* ***************************
  * Return Inventory by Classification As JSON
  * ************************** */
-invCont.getInventoryJSON = async (req, res, next) => {
+invCont.getInventoryJSON = async function (req, res, next) {
   const classification_id = parseInt(req.params.classification_id)
   const invData = await invModel.getInventoryByClassificationId(classification_id)
   if (invData[0] && invData[0].inv_id) {
@@ -295,82 +293,74 @@ invCont.getInventoryJSON = async (req, res, next) => {
 }
 
 /* ***************************
- * Build compare selection view
- * ************************** */
-invCont.buildCompareSelectionView = async function (req, res, next) {
-  let nav = await utilities.getNav()
-  // We'll get all inventory items to display them
-  const allInventory = await invModel.getInventoryByClassificationId(null); // Passing null or modifying the function to get all items
-  const grid = await utilities.buildComparisonGrid(allInventory)
-  res.render("./inventory/compare", {
-      title: "Compare Vehicles",
-      nav,
-      errors: null,
-      grid,
-  })
-}
-
-/* ***************************
  * Manage comparison list in session
  * ************************** */
 invCont.manageCompare = async function (req, res, next) {
-  const action = req.params.action;
-  const inv_id = parseInt(req.params.inv_id);
+    const action = req.params.action;
+    const inv_id = parseInt(req.params.inv_id);
 
-  // Initialize compare list in session if it doesn't exist
-  if (!req.session.compareList) {
-      req.session.compareList = [];
-  }
+    if (!req.session.compareList) {
+        req.session.compareList = [];
+    }
 
-  if (action === 'add') {
-      // Prevent adding the same car twice
-      if (!req.session.compareList.includes(inv_id)) {
-          if (req.session.compareList.length < 2) {
-              req.session.compareList.push(inv_id);
-          } else {
-              // If list is full, replace the second item
-              req.session.compareList[1] = inv_id;
-          }
-      }
-  }
+    if (action === 'add') {
+        if (!req.session.compareList.includes(inv_id)) {
+            if (req.session.compareList.length < 2) {
+                req.session.compareList.push(inv_id);
+            } else {
+                req.session.compareList[1] = inv_id;
+            }
+        }
+    }
 
-  if (action === 'remove') {
-      req.session.compareList = req.session.compareList.filter(id => id !== inv_id);
-  }
+    if (action === 'remove') {
+        req.session.compareList = req.session.compareList.filter(id => id !== inv_id);
+    }
 
-  if (req.session.compareList.length === 2) {
-      // If two cars are selected, go to comparison view
-      return res.redirect('/inv/compare-view');
-  } else {
-      // Otherwise, redirect back to where the user was, with a message
-      req.flash("notice", "Vehicle added to comparison. Select one more.");
-      res.redirect(req.get('Referer') || '/'); // Go back to the previous page
-  }
+    const compareList = req.session.compareList;
+
+    if (compareList.length === 2) {
+        return res.redirect('/inv/compare-view');
+    } else if (compareList.length === 1) {
+        // Usamos nuestro nuevo sistema manual
+        req.session.notice = "Vehicle added to comparison. Select one more.";
+        return res.redirect(req.get('Referer') || '/');
+    } else {
+        return res.redirect(req.get('Referer') || '/');
+    }
 };
 
 /* ***************************
 * Build the comparison view
 * ************************** */
 invCont.buildCompareView = async function (req, res, next) {
-  let nav = await utilities.getNav();
-  const compareIds = req.session.compareList || [];
+    let nav = await utilities.getNav();
+    const compareIds = req.session.compareList || [];
 
-  if (compareIds.length < 2) {
-      req.flash("notice", "Please select at least two vehicles to compare.");
-      return res.redirect('/'); 
-  }
+    if (compareIds.length < 2) {
+        req.flash("notice", "Please select at least two vehicles to compare.");
+        return res.redirect('/');
+    }
 
-  const [vehicle1, vehicle2] = await invModel.getVehiclesByIds(compareIds);
+    const vehicles = await invModel.getVehiclesByIds(compareIds);
 
-  res.render("./inventory/comparison", {
-      title: "Vehicle Comparison",
-      nav,
-      errors: null,
-      vehicle1,
-      vehicle2,
-  });
+    if (vehicles.length < 2) {
+        req.flash("notice", "Could not retrieve vehicles for comparison.");
+        req.session.compareList = []; // Clear the list if it failed
+        return res.redirect('/');
+    }
+    const [vehicle1, vehicle2] = vehicles;
 
-  
-   req.session.compareList = [];
+    res.render("./inventory/comparison", {
+        title: "Vehicle Comparison",
+        nav,
+        errors: null,
+        vehicle1,
+        vehicle2,
+    });
+
+    // Clear the list AFTER rendering the view.
+    req.session.compareList = [];
 };
+
 module.exports = invCont

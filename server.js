@@ -18,6 +18,7 @@ const session = require("express-session")
 const pool = require('./database/')
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
+const flash = require('connect-flash');
 
 /* ***********************
  * Middleware
@@ -33,34 +34,38 @@ app.use(session({
   name: 'sessionId',
 }))
 
-// Express Messages Middleware
-app.use(require('connect-flash')())
-app.use(function(req, res, next){
-  res.locals.messages = require('express-messages')(req, res)
-  res.locals.compareList = req.session.compareList
-  next()
-})
-
+app.use(flash());
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }))
+// cookieParser debe estar ANTES de cualquier cosa que use req.cookies
 app.use(cookieParser())
+
 app.use(utilities.checkJWTToken)
 
-/* ***********************
- * Static Files
- *************************/
-app.use(static)
+app.use(function(req, res, next){
+  res.locals.messages = require('express-messages')(req, res);
+  if (req.session.notice) {
+    res.locals.notice = req.session.notice;
+    delete req.session.notice;
+  }
+  // El middleware checkJWTToken ya ha establecido res.locals.loggedin si el usuario está conectado.
+  // Aquí solo nos aseguramos de que siempre tenga un valor para evitar errores en las vistas.
+  res.locals.loggedin = res.locals.loggedin || 0;
+  res.locals.compareList = req.session.compareList || [];
+  next();
+});
 
 /* ***********************
  * View Engine and Templates
  *************************/
 app.set("view engine", "ejs")
 app.use(expressLayouts)
-app.set("layout", "./layouts/layout") // not at views root
+app.set("layout", "./layouts/layout") 
 
 /* ***********************
  * Routes
  *************************/
+app.use(static)
 // Index route
 app.get("/", utilities.handleErrors(baseController.buildHome))
 // Inventory routes

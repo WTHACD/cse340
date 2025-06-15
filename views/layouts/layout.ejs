@@ -17,7 +17,15 @@
             <%- nav %>
         </nav>
         <main>
-            <%- body %>
+            <%- messages() %>
+                <% if (locals.notice) { %>
+                    <ul class="notice">
+                        <li>
+                            <%= notice %>
+                        </li>
+                    </ul>
+                    <% } %>
+                        <%- body %>
         </main>
         <footer>
             <%- include('../partials/footer') %>
