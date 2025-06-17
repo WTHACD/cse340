@@ -9,12 +9,14 @@ require("dotenv").config()
 * Deliver login view
 * *************************************** */
 async function buildLogin(req, res, next) {
-    let nav = await utilities.getNav()
-    res.render("account/login", {
-      title: "Login",
-      nav,
-      errors: null,
-    })
+  let nav = await utilities.getNav()
+  res.render("account/login", {
+    title: "Login",
+    nav,
+    errors: null,
+    pageCSS: '<link rel="stylesheet" href="/css/login.css">',
+    bodyClass: "login-page" 
+  })
 }
 
 /* ****************************************

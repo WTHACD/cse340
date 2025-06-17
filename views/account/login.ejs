@@ -1,12 +1,12 @@
-<% if (title) { %>
-    <h1><%- title %></h1>
-    <% } else { res.redirect('/') } %>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h1>Login</h1>
 
         <%- messages() %>
 
             <% if (errors) { %>
                 <ul class="notice">
-                    <% errors.array().forEach(error=> { %>
+                    <% errors.forEach(error=> { %>
                         <li>
                             <%= error.msg %>
                         </li>
@@ -14,16 +14,21 @@
                 </ul>
                 <% } %>
 
-                    <div class="form-container">
-                        <form id="loginForm" action="/account/login" method="post" class="login-form">
-                            <fieldset>
-                                <label for="account_email">Email:</label>
-                                <input type="email" id="account_email" name="account_email" required value="<%= locals.account_email %>">
-                                <label for="account_password">Password:</label>
-                                <input type="password" id="account_password" name="account_password" required>
+                    <form action="/account/login" method="post">
+                        <div>
+                            <label for="account_email">Email:</label>
+                            <input type="email" id="account_email" name="account_email" required <%
+                                if(locals.account_email) { %> value="<%= locals.account_email %>" <% } %>>
+                        </div>
+                        <div>
+                            <label for="account_password">Password:</label>
+                            <input type="password" id="account_password" name="account_password" required>
+                        </div>
+                        <button type="submit">Login</button>
+                    </form>
 
-                                <button type="submit">Login</button>
-                            </fieldset>
-                        </form>
-                        <p class="signup-link">No account? <a href="/account/register">Sign-up</a></p>
+                    <div class="form-link">
+                        <span>No account? <a href="/account/register">Sign-up</a></span>
                     </div>
+    </div>
+</div>
