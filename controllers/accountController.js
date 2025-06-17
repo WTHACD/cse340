@@ -9,14 +9,12 @@ require("dotenv").config()
 * Deliver login view
 * *************************************** */
 async function buildLogin(req, res, next) {
-  let nav = await utilities.getNav()
-  res.render("account/login", {
-    title: "Login",
-    nav,
-    errors: null,
-    pageCSS: '<link rel="stylesheet" href="/css/login.css">',
-    bodyClass: "login-page" 
-  })
+    let nav = await utilities.getNav()
+    res.render("account/login", {
+      title: "Login",
+      nav,
+      errors: null,
+    })
 }
 
 /* ****************************************
@@ -97,8 +95,16 @@ async function accountLogin(req, res) {
   }
   try {
     if (await bcrypt.compare(account_password, accountData.account_password)) {
-      delete accountData.account_password
-      const accessToken = jwt.sign(accountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 * 1000 })
+      const freshAccountData = await accountModel.getAccountByEmail(account_email);
+
+      
+      console.log("--- DATA BEING SIGNED INTO JWT FOR EMPLOYEE ---");
+      console.log(freshAccountData);
+     
+
+      delete freshAccountData.account_password
+      const accessToken = jwt.sign(freshAccountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 * 1000 })
+      
       if(process.env.NODE_ENV === 'development') {
         res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
       } else {

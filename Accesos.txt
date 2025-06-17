@@ -1,2 +1,8 @@
+           Admin
 Email: manager@340.edu
 Password: I@mAnAdm!n1strat0r
+
+           Employee
+User:
+Email: ud@gmail.com	
+Password: PasswordForEmployee123!

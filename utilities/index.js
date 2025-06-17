@@ -137,18 +137,22 @@ Util.checkJWTToken = (req, res, next) => {
  * Check for Employee or Admin Authorization
  * ************************************ */
 Util.checkManagementAccess = (req, res, next) => {
-    if (res.locals.loggedin) {
-        const account_type = res.locals.accountData.account_type
-        if (account_type === 'Employee' || account_type === 'Admin') {
-            next()
-        } else {
-            req.flash("notice", "You are not authorized to access this page.")
-            return res.redirect("/account/login")
-        }
-    } else {
-        req.flash("notice", "Please log in.")
-        return res.redirect("/account/login")
-    }
+  if (res.locals.loggedin) {
+      // --- AÑADE ESTA LÍNEA PARA DEPURAR ---
+      console.log("Checking Access For:", res.locals.accountData); 
+      // ------------------------------------
+
+      const account_type = res.locals.accountData.account_type
+      if (account_type === 'Employee' || account_type === 'Admin') {
+          next()
+      } else {
+          req.flash("notice", "You are not authorized to access this page.")
+          return res.redirect("/account/login")
+      }
+  } else {
+      req.flash("notice", "Please log in.")
+      return res.redirect("/account/login")
+  }
 }
 
 
