@@ -39,7 +39,7 @@ app.use(session({
 app.use(flash());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-// cookieParser debe estar ANTES de cualquier cosa que use req.cookies
+
 app.use(cookieParser())
 
 app.use(utilities.checkJWTToken)
@@ -50,8 +50,7 @@ app.use(function(req, res, next){
     res.locals.notice = req.session.notice;
     delete req.session.notice;
   }
-  // El middleware checkJWTToken ya ha establecido res.locals.loggedin si el usuario está conectado.
-  // Aquí solo nos aseguramos de que siempre tenga un valor para evitar errores en las vistas.
+  
   res.locals.loggedin = res.locals.loggedin || 0;
   res.locals.compareList = req.session.compareList || [];
   next();

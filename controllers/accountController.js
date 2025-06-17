@@ -162,7 +162,6 @@ async function updateAccountInfo(req, res, next) {
     const { account_id, account_firstname, account_lastname, account_email } = req.body
     const errors = validationResult(req)
     let nav = await utilities.getNav()
-
     if (!errors.isEmpty()) {
         return res.render("account/update", {
             title: "Update Account Information",
@@ -176,13 +175,11 @@ async function updateAccountInfo(req, res, next) {
     }
 
     const updateResult = await accountModel.updateAccountInfo(account_id, account_firstname, account_lastname, account_email)
-
     if (updateResult) {
         // Regenerate JWT with updated info
         const updatedAccountData = await accountModel.getAccountById(account_id)
         const accessToken = jwt.sign(updatedAccountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 * 1000 });
         res.cookie("jwt", accessToken, { httpOnly: true, secure: process.env.NODE_ENV !== 'development', maxAge: 3600 * 1000 });
-
         req.flash("notice", "Your account information has been successfully updated.")
         res.redirect("/account/")
     } else {
@@ -207,7 +204,6 @@ async function updatePassword(req, res, next) {
     const errors = validationResult(req)
     let nav = await utilities.getNav()
     const accountData = await accountModel.getAccountById(account_id)
-
     if (!errors.isEmpty()) {
         return res.render("account/update", {
             title: "Update Account Information",
@@ -222,9 +218,7 @@ async function updatePassword(req, res, next) {
 
     // Hash the new password
     let hashedPassword = await bcrypt.hashSync(account_password, 10)
-
     const updateResult = await accountModel.updatePassword(account_id, hashedPassword)
-
     if (updateResult) {
         req.flash("notice", "Your password has been successfully updated.")
         res.redirect("/account/")
